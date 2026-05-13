@@ -83,7 +83,7 @@ Any other command will return `invalid`.
 ```bash
 cd <workspace>
 source /opt/ros/foxy/setup.bash  # or your ROS2 distro
-colcon build --packages-select lite3_sdk_service
+colcon build --packages-up-to lite3_sdk_service
 ```
 
 ### Run

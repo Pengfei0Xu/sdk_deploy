@@ -15,7 +15,7 @@ int main(){
     std::cout << "State Machine Start Running" << std::endl;
     rclcpp::init(0, 0);
     std::shared_ptr<StateMachineBase> fsm = std::make_shared<q::QStateMachine>(RobotName::Lite3, 
-        RemoteCommandType::kKeyBoard);
+        RemoteCommandType::kRetroidGamepad);
     fsm->Start();
     fsm->Run();
     fsm->Stop();

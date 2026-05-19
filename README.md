@@ -12,7 +12,7 @@ This repository contains the robotics control SDK, currently supporting Lite3 an
 - `src/lite3_sdk_service`: The source code for Lite3 SDK mode switching and frequency modification services.
 - `src/lite3_transfer`: The source code for Lite3 UDP-ROS2 message transfer.  
 
-Before using the Lite3 SDK, please refer to the [Lite3 SDK Service Guide](README_lite3_sdk_service.md). For the Lite3 SDK deployment process, please refer to the [Lite3 SDK Deployment Guide](src/Lite3_sdk_deploy/README.md).
+Before using the Lite3 SDK, please refer to the [Lite3 SDK Service Guide](src/lite3_sdk_service/README.md). For the Lite3 SDK deployment process, please refer to the [Lite3 SDK Deployment Guide](src/Lite3_sdk_deploy/README.md).
 ### M20
 - `src/M20_sdk_deploy`: The source code for the M20 SDK deploy.  
 
@@ -33,7 +33,7 @@ See the [Contributors](Contributors.md) page for a list of contributors.
 - `src/lite3_sdk_service`：Lite3 SDK模式切换、频率修改服务的源代码。
 - `src/lite3_transfer`：Lite3 UDP-ROS2消息转换的源代码。
 
-使用Lite3 SDK前请查看[Lite3 SDK服务说明](README_lite3_sdk_service.md)，Lite3 SDK部署流程请查看[Lite3 SDK部署说明](src/Lite3_sdk_deploy/README.md)。
+使用Lite3 SDK前请查看[Lite3 SDK服务说明](/src/lite3_sdk_service/README.md)，Lite3 SDK部署流程请查看[Lite3 SDK部署说明](src/Lite3_sdk_deploy/README.md)。
 ### M20
 - `src/M20_sdk_deploy`：M20 SDK部署的源代码。
 

@@ -8,7 +8,7 @@ This repository uses ROS2 to implement the entire Sim-to-sim and Sim-to-real wor
 Keyboard controls, the process is as follows:
 ```mermaid
 graph LR
-    A["/rl_deploy"] -->|/JOINTS_CMD| B["/mujoco_simulation or /lite3"]
+    A["/rl_deploy"] -->|/JOINTS_CMD| B["/mujoco_simulation(Sim) or /lite3(Real)"]
     B -->|/IMU_DATA| A
     B -->|/JOINTS_DATA| A
 ```
@@ -115,10 +115,12 @@ python3 src/Lite3_sdk_deploy/interface/robot/simulation/mujoco_simulation_ros2.p
 > - qe：clockwise/counter clockwise
 
 ## Sim-to-real  
-**Before proceeding with this step, verify the version of your Lite3 system image. Ensure the image has ROS 2 and the transfer functionality package installed. If the image has not been upgraded, please contact your technical support.**
-The default controller mode is currently set to keyboard mode. To switch to gamepad control, modify `RemoteCommandType::kKeyBoard` to `RemoteCommandType::kRetroidGamepad` in `main.cpp`. Please use this app for the following process! 
+Before proceeding with this step, verify **the version of your Lite3 system image**. Ensure the image has **ROS 2** and the **sdk_service functionality package** installed. If the image has not been upgraded, please contact your technical support.
+The default controller mode is currently set to gamepad mode. 
 
 ![alt text](../../img/lite3_app.png)
+
+If you want to switch to keyboard control, modify `RemoteCommandType::kRetroidGamepad` to `RemoteCommandType::kKeyBoard` in `main.cpp`. Please use this app for the following process! 
 
 You can download the structure parts mentioned in the video which is used to mount the AGX Jetson Orin on the robot with this [link](https://drive.google.com/file/d/1ksdvI1zkGVMrUQH-tLnD6jNTp4dic-UI/view?usp=drive_link).
 
@@ -177,12 +179,7 @@ ros2 run lite3_sdk_deploy rl_deploy
 > - You can use the App on the Retroid gamepad to adjust the publishing frequency of /JOINTS_DATA and /IMU_DATA.  
 <img src="../../img/Lite3_change_fre.png" alt="Slide to select the appropriate number to modify the frequency in Retroid gamepad" width="500"> 
 
-> - Additionally, you can modify the /JOINTS_DATA and /IMU_DATA publish frequency using ROS2 commands.
-```bash
-ros2 service call /SDK_MODE drdds/srv/StdSrvInt32 command:"{command: 200}" 
-# The posting frequency for the /JOINTS_DATA and /IMU_DATA topic. The default value is 200.
-```
-**(Optional) Cross-host communication**  
+### (Optional) Cross-host communication  
 The Lite3 computer has limited resources. To expand other functionalities, you may additionally configure a host computer (such as NVIDIA Jetson) for ROS2 communication.
 1. Connect the host to Lite3 via a wired Ethernet cable.
 2. Following the steps above, run rl_deploy on the host computer.
@@ -194,3 +191,7 @@ This is caused by an incompatible version of the ONNX Runtime library within the
 Verified cross-host cases:
 1. NVIDIA Jetson AGX Orin with Jetpack version 6.1 and CUDA version 12.6. using the `onnxruntime-linux-aarch64-gpu-cuda12-1.18.1.tar.bz2` version from [csukuangfj/onnxruntime-libs](https://github.com/csukuangfj/onnxruntime-libs/releases?page=2).
 2. Lite3 Venture original onboard compute. Use this [link](https://drive.google.com/drive/folders/1ZJEQf7VxLLKFZHxS3WUhEhj227QD7ln3?usp=drive_link) the download arm folder.
+
+<span style="color: red;">**Warning: The ROS 2 version in Lite3 is foxy (Compatible with Ubuntu 20.04). If the ROS 2 version in your host computer is not foxy, communication will not work properly (ROS 2 does not officially support cross-version communication).**</span> 
+We add an additional shadow subscriber to solve this problem temporarily.
+If you know how to solve it better, welcome to submit an issue or a pull request.

@@ -193,6 +193,7 @@ estop
 ### Upload source packages
 
 ```bash
+ssh ysc@192.168.2.1 "mkdir -p ~/sdk_service/src"
 scp -r ~/sdk_deploy/src/drdds ~/sdk_deploy/src/lite3_transfer ~/sdk_deploy/src/lite3_sdk_service ysc@192.168.2.1:~/sdk_service/src
 ```
 

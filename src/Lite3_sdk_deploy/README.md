@@ -147,6 +147,7 @@ ssh ysc@192.168.2.1
 **Compile ROS2 package**
 ```bash
 # scp to transfer files to lite3 (open a terminal on your local computer) password is ' (a single quote)
+ssh ysc@192.168.2.1 'mkdir -p ~/Lite3_sdk_deploy/src'
 scp -r ~/sdk_deploy/src/drdds ~/sdk_deploy/src/Lite3_sdk_deploy ysc@192.168.2.1:~/Lite3_sdk_deploy/src
 
 # ssh connect for remote development

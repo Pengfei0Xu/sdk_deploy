@@ -79,18 +79,18 @@ This deployment flow is intended for the Lite3 robot host. It requires Wi-Fi/net
 ```
 
 ## Prerequisites
+All configurations must be performed on the motion host.
 
-### Configure `network.toml`
+```bash
+# computer and gamepad should both connect to WiFi
+# WiFi: lite3********
+# Passward: 12345678 (If wrong, contact technical support)
 
-Modify `jy_exe/conf/network.toml` to to this content.
-
-```toml
-ip = '192.168.2.1'
-target_port = 43897
-local_port = 43893
-
-ips = ['192.168.1.103']
-ports = [43897]
+# ssh connect for remote development
+#Username	Password
+#ysc		' (a single quote)
+ssh ysc@192.168.2.1
+# enter your passward, the terminal will be active on the Lite3 computer
 ```
 
 ### Network configuration
@@ -102,9 +102,12 @@ sudo nmcli dev wifi connect "name" password "password" ifname wlan0
 ```
 After connecting to Wi-Fi, please attempt to ping external networks. If ping fails, follow these steps:
 
-Navigate to ~/etc/netplan/config.yaml
+Navigate to `~/etc/netplan/config.yaml`
 ```bash
-# Delete the gateway configuration. The following is an example; please delete according to your actual situation.
+sudo vim ~/etc/netplan/config.yaml
+```
+Delete the gateway configuration. The following is an example; please delete according to your actual situation.
+```bash
 network:
     version: 2
     renderer: NetworkManager
@@ -131,6 +134,23 @@ Reference:
 
 - [ROS2 Foxy documentation](https://docs.ros.org/en/foxy/index.html)
 
+### Configure `network.toml`
+
+```bash
+vim ~/jy_exe/conf/network.toml
+```
+
+Modify `network.toml` to to this content.
+
+```toml
+ip = '192.168.2.1'
+target_port = 43897
+local_port = 43893
+
+ips = ['192.168.1.103']
+ports = [43897]
+```
+
 ## SDK Service Features
 
 - **Node Management**: Start and stop `lite3_transfer` remotely
@@ -138,7 +158,7 @@ Reference:
 - **Emergency Stop**: Trigger the Lite3 emergency stop chain through `/EMERGENCY_STOP`
 - **Auto-start Support**: Start `lite3_sdk_service` automatically via systemd
 
-## SDK Commands
+## Service Commands
 
 The service accepts the following commands via UDP on port `12122`.
 
@@ -168,16 +188,12 @@ estop
 ```
 - **Response**: `success` or `failure`
 
-## SDK Deploy
+## Service Deploy
 
 ### Upload source packages
 
-On your local machine:
-
 ```bash
-scp -r ~/sdk_deploy/src/drdds ysc@192.168.2.1:~/sdk_service/src
-scp -r ~/sdk_deploy/src/lite3_transfer ysc@192.168.2.1:~/sdk_service/src
-scp -r ~/sdk_deploy/src/lite3_sdk_service ysc@192.168.2.1:~/sdk_service/src
+scp -r ~/sdk_deploy/src/drdds ~/sdk_deploy/src/lite3_transfer ~/sdk_deploy/src/lite3_sdk_service ysc@192.168.2.1:~/sdk_service/src
 ```
 
 ### Run the deployment script
@@ -185,7 +201,6 @@ scp -r ~/sdk_deploy/src/lite3_sdk_service ysc@192.168.2.1:~/sdk_service/src
 Use `setup_service.sh` to build the required packages and configure the systemd service automatically.
 
 ```bash
-ssh ysc@192.168.2.1
 cd ~/sdk_service/src/lite3_sdk_service
 chmod +x setup_service.sh
 ./setup_service.sh
@@ -207,19 +222,12 @@ The script performs:
 3. creation of `/etc/systemd/system/lite3_sdk_service.service`
 4. `systemctl enable` and `systemctl restart`
 
-The script does **not**:
-
-- install ROS2
-- modify `network.toml`
-- modify netplan, Wi-Fi, gateway, or route settings
-
 ## Build and Run Manually
 If the script deployment fails, you can follow steps below to deploy.
 
 ### Compile
 
 ```bash
-ssh ysc@192.168.2.1
 cd ~/sdk_service
 source /opt/ros/foxy/setup.bash
 colcon build --packages-up-to lite3_sdk_service

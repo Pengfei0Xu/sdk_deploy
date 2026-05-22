@@ -214,7 +214,7 @@ The script does **not**:
 - modify netplan, Wi-Fi, gateway, or route settings
 
 ## Build and Run Manually
-If you don't want to use the script, you can follow steps below to deploy.
+If the script deployment fails, you can follow steps below to deploy.
 
 ### Compile
 

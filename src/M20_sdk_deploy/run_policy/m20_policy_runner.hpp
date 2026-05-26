@@ -92,15 +92,15 @@ public:
 
         dof_default_eigen_policy.setZero(action_dim);
         dof_default_eigen_robot.setZero(action_dim);
-        dof_default_eigen_policy << 0.0, -0.6,  1.0, 
-                                    0.0, -0.6,  1.0,  
-                                    0.0,  0.6, -1.0,  
-                                    0.0,  0.6, -1.0, 
+        dof_default_eigen_policy << 0.0, -0.3,  0.6, 
+                                    0.0, -0.3,  0.6,  
+                                    0.0,  0.3, -0.6,  
+                                    0.0,  0.3, -0.6, 
                                     0.0, 0.0, 0.0, 0.0;
-        dof_default_eigen_robot << 0.0, -0.6,  1.0, 0.0,
-                                   0.0, -0.6,  1.0, 0.0,
-                                   0.0,  0.6, -1.0, 0.0,
-                                   0.0,  0.6, -1.0, 0.0;
+        dof_default_eigen_robot << 0.0, -0.3,  0.6, 0.0,
+                                   0.0, -0.3,  0.6, 0.0,
+                                   0.0,  0.3, -0.6, 0.0,
+                                   0.0,  0.3, -0.6, 0.0;
         SetDecimation(4);
         session_options_.SetIntraOpNumThreads(4);
         session_options_.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);

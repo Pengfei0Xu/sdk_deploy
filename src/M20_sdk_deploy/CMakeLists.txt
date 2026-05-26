@@ -86,7 +86,6 @@ else()
     -lrt
     -ldl
     -lstdc++
-    -levdev
   )
 endif()
 

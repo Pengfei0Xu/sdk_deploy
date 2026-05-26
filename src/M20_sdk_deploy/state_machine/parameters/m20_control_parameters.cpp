@@ -7,7 +7,7 @@ void ControlParameters::GenerateM20Parameters(){
     thigh_len_ = 0.25;
     shank_len_ = 0.25;
     pre_height_ = 0.12;
-    stand_height_ = 0.38;
+    stand_height_ = 0.48;
     swing_leg_kp_ << 200., 200., 200.;
     swing_leg_kd_ << 4., 4., 4.;
 

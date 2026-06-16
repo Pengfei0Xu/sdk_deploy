@@ -1,9 +1,0 @@
-# lite3_sdk_deploy trace config
-enable: false
-console: false
-file: false
-
-topic_trace: false
-estop_trace: false
-
-log_dir: ""

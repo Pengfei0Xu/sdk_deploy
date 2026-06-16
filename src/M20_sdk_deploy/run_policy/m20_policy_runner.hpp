@@ -28,7 +28,9 @@ private:
     timespec system_time;
 
     const int motor_num = 16;
-    const int observation_dim = 57;
+    const int one_step_obs_dim = 57;
+    const int history_length = 5;
+    const int observation_dim = one_step_obs_dim * history_length; // 285
     const int action_dim = 16;
     float agent_timestep = 0.02;
     float current_time;
@@ -44,6 +46,8 @@ private:
     VecXf imu_w_eigen, base_acc_eigen, motor_p_eigen, motor_v_eigen,
           current_action_eigen, last_action_eigen, current_observation_, projected_gravity,
           tmp_action_eigen;
+    VecXf one_step_obs_;          // 单步观测 (57维)
+    VecXf obs_history_;           // 历史观测缓冲区 (285维)
 
     RobotAction robot_action;
     std::vector<std::string> robot_order = {
@@ -92,15 +96,15 @@ public:
 
         dof_default_eigen_policy.setZero(action_dim);
         dof_default_eigen_robot.setZero(action_dim);
-        dof_default_eigen_policy << 0.0, -0.3,  0.6, 
-                                    0.0, -0.3,  0.6,  
-                                    0.0,  0.3, -0.6,  
-                                    0.0,  0.3, -0.6, 
+        dof_default_eigen_policy << 0.0, -0.6,  1.0, 
+                                    0.0, -0.6,  1.0,  
+                                    0.0,  0.6, -1.0,  
+                                    0.0,  0.6, -1.0, 
                                     0.0, 0.0, 0.0, 0.0;
-        dof_default_eigen_robot << 0.0, -0.3,  0.6, 0.0,
-                                   0.0, -0.3,  0.6, 0.0,
-                                   0.0,  0.3, -0.6, 0.0,
-                                   0.0,  0.3, -0.6, 0.0;
+        dof_default_eigen_robot << 0.0, -0.6,  1.0, 0.0,
+                                   0.0, -0.6,  1.0, 0.0,
+                                   0.0,  0.6, -1.0, 0.0,
+                                   0.0,  0.6, -1.0, 0.0;
         SetDecimation(4);
         session_options_.SetIntraOpNumThreads(4);
         session_options_.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
@@ -130,6 +134,8 @@ public:
 
 
         current_observation_.setZero(observation_dim);
+        one_step_obs_.setZero(one_step_obs_dim);
+        obs_history_.setZero(observation_dim);
         last_action_eigen.setZero(action_dim);
         tmp_action_eigen.setZero(action_dim);
         current_action_eigen.setZero(action_dim);
@@ -169,6 +175,8 @@ public:
         cmd_vel_input_.setZero();
         last_action_eigen.setZero(action_dim);
         tmp_action_eigen.setZero(action_dim);
+        one_step_obs_.setZero(one_step_obs_dim);
+        obs_history_.setZero(observation_dim);
         motor_p_eigen.setZero(12);
         motor_v_eigen.setZero(motor_num);
     }
@@ -213,14 +221,19 @@ public:
         joint_pos_rl.segment(12, 4).setZero();
 
         joint_pos_rl -= dof_default_eigen_policy;
-        current_observation_<<base_omgea, 
-                              projected_gravity, 
-                              command, 
-                              joint_pos_rl, 
-                              joint_vel_rl, 
-                              last_action_eigen;
+        one_step_obs_<<command,
+                       base_omgea,
+                       projected_gravity,
+                       joint_pos_rl,
+                       joint_vel_rl,
+                       last_action_eigen;
 
-        current_action_eigen = Onnx_infer(current_observation_);
+        // Shift history right by one_step_obs_dim and prepend new observation at the front
+        // History order: [t, t-1, t-2, t-3, t-4] (newest to oldest, matches training flip)
+        obs_history_.tail(observation_dim - one_step_obs_dim) = obs_history_.head(observation_dim - one_step_obs_dim).eval();
+        obs_history_.head(one_step_obs_dim) = one_step_obs_;
+
+        current_action_eigen = Onnx_infer(obs_history_);
         last_action_eigen = current_action_eigen;
 
         

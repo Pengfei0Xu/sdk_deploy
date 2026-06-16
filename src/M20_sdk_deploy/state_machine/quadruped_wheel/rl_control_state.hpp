@@ -12,6 +12,7 @@
 #include "state_base.h"
 #include "policy_runner_base.hpp"
 #include "m20_policy_runner.hpp"
+#include "m20_highlevel_policy_runner.hpp"
 #include "robot_interface.h"
 #include "user_command_interface.h"
 #include "json.hpp"
@@ -84,11 +85,21 @@ namespace qw {
             if (robot_name_ == RobotName::M20) {
                 namespace fs = std::filesystem;
                 fs::path base = fs::path(__FILE__).parent_path();
-                auto model_path = fs::canonical(base / ".." / ".." / "policy" / "policy.onnx");
-                m20_policy_ = std::make_shared<M20PolicyRunner>("m20_policy", model_path.string());
+                auto ll_model_path = fs::canonical(base / ".." / ".." / "policy" / "flat_policy.onnx");
+                auto hl_model_path = base / ".." / ".." / "policy" / "high_level_policy.onnx";
+
+                if (fs::exists(hl_model_path)) {
+                    auto hl_model_path_canonical = fs::canonical(hl_model_path);
+                    std::cout << "[RLControlState] High-level policy found, using cascaded mode." << std::endl;
+                    policy_ptr_ = std::make_shared<M20HighLevelPolicyRunner>(
+                        "m20_highlevel_policy", ll_model_path.string(), hl_model_path_canonical.string());
+                } else {
+                    std::cout << "[RLControlState] Using low-level policy only." << std::endl;
+                    m20_policy_ = std::make_shared<M20PolicyRunner>("m20_policy", ll_model_path.string());
+                    policy_ptr_ = m20_policy_;
+                }
             }
 
-            policy_ptr_ = m20_policy_;
             if (!policy_ptr_) {
                 std::cerr << "error policy" << std::endl;
                 exit(0);

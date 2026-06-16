@@ -38,6 +38,7 @@ XML_PATH = str(XML_PATH.resolve())
 USE_VIEWER = True
 DT = 0.001
 RENDER_INTERVAL = 50
+BODY_HEIGHT_LOG_INTERVAL = 1.0
 
 # Calibaration parameters (for sim-to-real consistency)
 JOINT_DIR = np.array([1, 1, -1, 1, 1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, -1], dtype=np.float32)
@@ -86,6 +87,7 @@ class MuJoCoSimulationNode(Node):
         # IMU
         self.last_base_linvel = np.zeros((3, 1), np.float64)
         self.timestamp = 0.0
+        self.last_body_height_log_time = -BODY_HEIGHT_LOG_INTERVAL
 
         self.get_logger().info(f"[INFO] MuJoCo model loaded, dof = {self.dof_num}")
 
@@ -205,6 +207,11 @@ class MuJoCoSimulationNode(Node):
     # --------------------------------------------------------
 
     def _publish_robot_state(self, step: int):
+        body_height = float(self.data.qpos[2])
+        if self.timestamp - self.last_body_height_log_time >= BODY_HEIGHT_LOG_INTERVAL:
+            self.get_logger().info(f"M20 body height: {body_height:.4f} m")
+            self.last_body_height_log_time = self.timestamp
+
         # ----- IMU -----
         q_world = self.data.sensordata[:4]  # quaternion (w, x, y, z) in MuJoCo convention
         rpy_rad = self.quaternion_to_euler(q_world)  # returns [roll, pitch, yaw] in radians

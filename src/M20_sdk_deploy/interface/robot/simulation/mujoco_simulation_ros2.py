@@ -105,6 +105,10 @@ class MuJoCoSimulationNode(Node):
         self.viewer = None
         if USE_VIEWER:
             self.viewer = mujoco.viewer.launch_passive(self.model, self.data)
+            # 关闭光影和反射以提升性能
+            with self.viewer.lock():
+                self.viewer.user_scn.flags[mujoco.mjtRndFlag.mjRND_SHADOW] = False
+                self.viewer.user_scn.flags[mujoco.mjtRndFlag.mjRND_REFLECTION] = False
 
     def _set_initial_pose(self, key: str):
         """关节位置设置为与 PyBullet 脚本一致的初始角度"""
